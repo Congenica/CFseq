@@ -17,7 +17,8 @@ sys.path.insert(0, lib_dir)
 from common.misc import open_file, have_file
 
 # location of TG-polyT in CFTR reference
-REGION = ['CFTR', 87824, 87852, 'TG-polyT']
+#REGION = ['CFTR', 87824, 87852, 'TG-polyT']
+REGION = ['7', 117188670, 117188690, 'TG-polyT']
 HET_FREQ = 0.25
 HOM_FREQ = 0.55
 
@@ -155,6 +156,8 @@ if __name__ == '__main__':
                         help="Minimum reads.")
     parser.add_argument("-o", "--outlabel", default="tgpolyt_results",
                         help="Label for output files.")
+    parser.add_argument("-d", "--outdir", default="./",
+                        help="Directory for output files.")
     parser.add_argument("--debug", action="store_true", default=False,
                         help="Debug mode.")
     parser.add_argument("-f", "--force", default=False, action="store_true",
@@ -165,8 +168,8 @@ if __name__ == '__main__':
         sys.exit()
     args = parser.parse_args()
 
-    outfile = args.outlabel + ".tgpolyt_counts.txt"
-    summaryfile = args.outlabel + ".tgpolyt.txt"
+    outfile = os.path.join(args.outdir, args.outlabel + ".tgpolyt_counts.txt")
+    summaryfile = os.path.join(args.outdir, args.outlabel + ".tgpolyt.txt")
     sys.stderr.write("Writing {}\n".format(outfile))
     sys.stderr.write("Writing {}\n".format(summaryfile))
     if have_file(outfile, args.force) and have_file(summaryfile, args.force):
@@ -189,7 +192,9 @@ if __name__ == '__main__':
             report_results(ofh, sfh, sample, tgpolyt, totreads, args)
         hetvf = sorted(HETCALLS)
         homvf = sorted(HOMCALLS)
-        ofh.write("Hom call range: {:.3f}-{:.3f}\n".format(homvf[0], homvf[-1]))
-        ofh.write("Het call range: {:.3f}-{:.3f}\n".format(hetvf[0], hetvf[-1]))
-        sys.stderr.write("Hom call range: {:.3f}-{:.3f}\n".format(homvf[0], homvf[-1]))
-        sys.stderr.write("Het call range: {:.3f}-{:.3f}\n".format(hetvf[0], hetvf[-1]))
+        if len(hetvf)>0:
+            ofh.write("Het call range: {:.3f}-{:.3f}\n".format(hetvf[0], hetvf[-1]))
+            sys.stderr.write("Het call range: {:.3f}-{:.3f}\n".format(hetvf[0], hetvf[-1]))
+        if len(homvf)>0:
+            ofh.write("Hom call range: {:.3f}-{:.3f}\n".format(homvf[0], homvf[-1]))
+            sys.stderr.write("Hom call range: {:.3f}-{:.3f}\n".format(homvf[0], homvf[-1]))
