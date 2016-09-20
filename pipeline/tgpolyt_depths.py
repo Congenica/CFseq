@@ -18,7 +18,9 @@ from common.misc import open_file, have_file
 
 # location of TG-polyT in CFTR reference
 #REGION = ['CFTR', 87824, 87852, 'TG-polyT']
-REGION = ['7', 117188670, 117188690, 'TG-polyT']
+SEQNAME = '7'
+START   = 117188661
+END     = 117188690
 HET_FREQ = 0.25
 HOM_FREQ = 0.55
 
@@ -162,12 +164,17 @@ if __name__ == '__main__':
                         help="Debug mode.")
     parser.add_argument("-f", "--force", default=False, action="store_true",
                         help="Overwrite existing files.")
+    parser.add_argument("-c","--chr", default=SEQNAME, help="Name of reference containing tgpolyt region (as in bam file)")
+    parser.add_argument("-s","--start", default=START, help="start of cftr tgpolyt region (default GRCh37)")
+    parser.add_argument("-e","--end",  default=END, help="end of cftr tgpolyt region (default GRCh37)")
 
     if len(sys.argv)<2:
         parser.print_help()
         sys.exit()
     args = parser.parse_args()
-
+    # Set tgpolyt region coordinates
+    region = [args.chr, int(args.start), int(args.end),'TG-polyT'] 
+    
     outfile = os.path.join(args.outdir, args.outlabel + ".tgpolyt_counts.txt")
     summaryfile = os.path.join(args.outdir, args.outlabel + ".tgpolyt.txt")
     sys.stderr.write("Writing {}\n".format(outfile))
@@ -187,8 +194,8 @@ if __name__ == '__main__':
             sample = get_samplename(bamfile)
             sys.stderr.write("\nReading bam file: {}\n".format(bamfile))
             sys.stderr.write("  Sample: {}\n".format(sample))
-            reads = get_reads_covering_region(bamfile, REGION)
-            (tgpolyt, totreads) = count_tgpolyt(reads, REGION, args.debug)
+            reads = get_reads_covering_region(bamfile, region)
+            (tgpolyt, totreads) = count_tgpolyt(reads, region, args.debug)
             report_results(ofh, sfh, sample, tgpolyt, totreads, args)
         hetvf = sorted(HETCALLS)
         homvf = sorted(HOMCALLS)
