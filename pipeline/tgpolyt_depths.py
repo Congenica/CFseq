@@ -102,16 +102,16 @@ def count_tgpolyt(mapped_reads, region, debug=False):
                              vf))
     return (tgpolyt, totreads)
 
-def hethom_call(tgtlist, vflist):
+def hethom_call(tgtlist, vflist, hom_freq_threshold = HOM_FREQ, het_freq_threshold = HET_FREQ):
     hethom = []
     for (tgt, vf) in zip(tgtlist, vflist):
-        if vf>HOM_FREQ: 
+        if vf > hom_freq_threshold:
             HOMCALLS.append(vf)
             if tgt=='11-7T':
                 hethom.append('hom')
             else:
                 hethom.append('hom alt')
-        elif vf>HET_FREQ: 
+        elif vf > het_freq_threshold:
             HETCALLS.append(vf)
             hethom.append('het')
         else:
@@ -141,7 +141,7 @@ def report_results(ofh, sfh, sample, tgpolyt, totreads, args):
         summvarfreq.append(varfreq)
         summreads.append(str(numreads))
     sfh.write("{}\t{}\t{}\t{}\t{}\n".format(sample, 
-        '/'.join(summtgt), hethom_call(summtgt, summvarfreq), 
+        '/'.join(summtgt), hethom_call(summtgt, summvarfreq, hom_freq = args.homfreq),
         '/'.join(summvf), '/'.join(summreads)))
 
 def get_samplename(bamfile):
@@ -154,6 +154,8 @@ if __name__ == '__main__':
     parser.add_argument("bamfiles", nargs="+", help="BAM file(s)")
     parser.add_argument("-l", "--lowfreq", type=float, default=HET_FREQ,
                         help="Low frequency cut-off.")
+    parser.add_argument("-h", "--homfreq", type=float, default=HOM_FREQ,
+                        help="Homozygous frequency cut-off.")
     parser.add_argument("-m", "--minreads", type=int, default=100,
                         help="Minimum reads.")
     parser.add_argument("-o", "--outlabel", default="tgpolyt_results",
